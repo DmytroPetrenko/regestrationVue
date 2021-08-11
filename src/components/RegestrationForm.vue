@@ -10,7 +10,7 @@
 				grow
 			>
 				<v-tabs-slider color="purple darken-4"></v-tabs-slider>
-				<v-tab v-for="i in tabs" :key="i">
+				<v-tab v-for="(i, index) in tabs" :key="index">
 					<v-icon large>{{ i.icon }}</v-icon>
 					<div class="caption py-1">{{ i.name }}</div>
 				</v-tab>
@@ -137,6 +137,7 @@
 </template>
 
 <script>
+import { mapActions } from "vuex"
 export default {
 	name: "RegestrationForm",
 
@@ -146,9 +147,21 @@ export default {
 		},
 	},
 	methods: {
+		...mapActions("user", ["register", "login"]),
 		validate() {
 			if (this.$refs.loginForm.validate()) {
 				// submit form to server/API here...
+				if (this.tab === 1) {
+					this.register({
+						name: this.firstName + " " + this.lastName,
+						email: this.email,
+						password: this.password,
+					})
+					this.tab = 0
+				}
+				if (this.tab === 0) {
+					this.login({ username: this.email, password: this.password })
+				}
 			}
 		},
 		reset() {
