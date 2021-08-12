@@ -2,18 +2,20 @@ import Vue from "vue"
 import Router from "vue-router"
 import RegestrationForm from "@/components/RegestrationForm"
 import UserPage from "@/components/UserPage"
+import routeNames from "./routeNames"
 
 Vue.use(Router)
 
 let router = new Router({
-	mode: "history",
 	routes: [
 		{
 			path: "/login",
+			name: routeNames.login,
 			component: RegestrationForm,
 		},
 		{
 			path: "/",
+			name: routeNames.home,
 			component: UserPage,
 		},
 		{
@@ -26,12 +28,12 @@ let router = new Router({
 
 router.beforeEach((to, from, next) => {
 	// redirect to login page if not logged in and trying to access a restricted page
-	const publicPages = ["/login"]
-	const authRequired = !publicPages.includes(to.path)
+	const publicPages = [routeNames.login]
+	const authRequired = !publicPages.includes(to.name)
 	const loggedIn = localStorage.getItem("user")
 
 	if (authRequired && !loggedIn) {
-		return next("/login")
+		return next(routeNames.login)
 	}
 
 	next()

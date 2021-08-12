@@ -1,3 +1,5 @@
+import axios from "axios"
+
 export const userService = {
 	login,
 	logout,
@@ -5,81 +7,42 @@ export const userService = {
 	getAll,
 }
 const path = "https://registrationform.free.beeceptor.com"
-//const path = ""
 
 function login(username, password) {
-	const requestOptions = {
-		method: "POST",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({ username, password }),
-	}
-
-	return fetch(`${path}/login`, requestOptions)
-		.then(handleResponse)
-		.then((user) => {
-			// login successful if there's a jwt token in the response
-			if (user.token) {
-				// store user details and jwt token in local storage to keep user logged in between page refreshes
-				localStorage.setItem("user", JSON.stringify(user))
+	return axios
+		.post(`${path}/login`, {
+			body: JSON.stringify({ username, password }),
+		})
+		.then((response) => {
+			if (response.data.token) {
+				localStorage.setItem("user", JSON.stringify(response.data))
 			}
 
-			return user
+			return response.data
 		})
+		.catch((err) => console.log(err))
 }
 
 function logout() {
-	// remove user from local storage to log user out
 	localStorage.removeItem("user")
 }
 
 function register(user) {
-	const requestOptions = {
-		method: "POST",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify(user),
-	}
-
-	return fetch(`${path}/register`, requestOptions).then(handleResponse)
+	return axios
+		.post(`${path}/register`, {
+			body: JSON.stringify(user),
+		})
+		.then((response) => {
+			return response.data
+		})
+		.catch((err) => console.log(err))
 }
 
 function getAll() {
-	const requestOptions = {
-		method: "GET",
-		headers: authHeader(),
-	}
-
-	return fetch(`${path}/users`, requestOptions).then(handleResponse)
-}
-
-function handleResponse(response) {
-	return response.text().then((text) => {
-		const data = text && JSON.parse(text)
-		if (!response.ok) {
-			if (response.status === 401) {
-				// auto logout if 401 response returned from api
-				logout()
-				location.reload(true)
-			}
-
-			const error = (data && data.message) || response.statusText
-			return Promise.reject(error)
-		}
-
-		if (data.users) {
-			return data.users
-		}
-
-		return data
-	})
-}
-
-function authHeader() {
-	// return authorization header with jwt token
-	let user = JSON.parse(localStorage.getItem("user"))
-
-	if (user && user.token) {
-		return { Authorization: "Bearer " + user.token }
-	} else {
-		return {}
-	}
+	return axios
+		.get(`${path}/users`)
+		.then((response) => {
+			return response.data.users
+		})
+		.catch((err) => console.log(err))
 }

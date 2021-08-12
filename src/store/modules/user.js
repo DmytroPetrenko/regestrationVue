@@ -1,10 +1,15 @@
 import { userService } from "../../services"
 import router from "@/router/index.js"
+import routeNames from "../../router/routeNames"
 
-const user = JSON.parse(localStorage.getItem("user"))
-const state = user
+/* const user = JSON.parse(localStorage.getItem("user")) */
+/* const state = user
 	? { status: { loggedIn: true }, user }
-	: { status: {}, user: null }
+	: { status: {}, user: null } */
+const state = {
+	status: {},
+	user: null,
+}
 
 const actions = {
 	login({ commit }, { username, password }) {
@@ -13,7 +18,7 @@ const actions = {
 		userService.login(username, password).then(
 			(user) => {
 				commit("loginSuccess", user)
-				router.push("/")
+				router.push({ name: routeNames.home })
 			},
 			(error) => {
 				commit("loginFailure", error)
@@ -34,6 +39,9 @@ const actions = {
 			}
 		)
 	},
+	setUserFromLS({ commit }, user) {
+		commit("setUserFromLS", user)
+	},
 }
 
 const mutations = {
@@ -52,6 +60,10 @@ const mutations = {
 	logout(state) {
 		state.status = {}
 		state.user = null
+	},
+	setUserFromLS(state, user) {
+		state.user = user
+		state.status = { loggedIn: true }
 	},
 }
 

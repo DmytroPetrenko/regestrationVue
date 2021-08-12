@@ -1,5 +1,5 @@
 <template>
-	<v-dialog v-model="dialog" persistent max-width="600px" min-width="360px">
+	<v-dialog v-model="isDialog" persistent max-width="600px" min-width="360px">
 		<div>
 			<v-tabs
 				v-model="tab"
@@ -9,8 +9,8 @@
 				dark
 				grow
 			>
-				<v-tabs-slider color="purple darken-4"></v-tabs-slider>
-				<v-tab v-for="(i, index) in tabs" :key="index">
+				<v-tabs-slider color="purple darken-4" />
+				<v-tab v-for="i in tabs" :key="i.name">
 					<v-icon large>{{ i.icon }}</v-icon>
 					<div class="caption py-1">{{ i.name }}</div>
 				</v-tab>
@@ -25,30 +25,30 @@
 											:rules="loginEmailRules"
 											label="E-mail"
 											required
-										></v-text-field>
+										/>
 									</v-col>
 									<v-col cols="12">
 										<v-text-field
 											v-model="loginPassword"
-											:append-icon="show1 ? 'eye' : 'eye-off'"
+											:append-icon="isPassVisible ? 'eye' : 'eye-off'"
 											:rules="[rules.required, rules.min]"
-											:type="show1 ? 'text' : 'password'"
+											:type="isPassVisible ? 'text' : 'password'"
 											name="input-10-1"
 											label="Password"
 											hint="At least 8 characters"
 											counter
-											@click:append="show1 = !show1"
-										></v-text-field>
+											@click:append="changeShowIcon"
+										/>
 									</v-col>
-									<v-col class="d-flex" cols="12" sm="6" xsm="12"> </v-col>
-									<v-spacer></v-spacer>
+									<v-col class="d-flex" cols="12" sm="6" xsm="12" />
+									<v-spacer />
 									<v-col class="d-flex" cols="12" sm="3" xsm="12" align-end>
 										<v-btn
 											x-large
 											block
 											:disabled="!valid"
 											color="success"
-											@click="validate"
+											@click="validateLogin"
 										>
 											Login
 										</v-btn>
@@ -70,7 +70,7 @@
 											label="First Name"
 											maxlength="20"
 											required
-										></v-text-field>
+										/>
 									</v-col>
 									<v-col cols="12" sm="6" md="6">
 										<v-text-field
@@ -79,7 +79,7 @@
 											label="Last Name"
 											maxlength="20"
 											required
-										></v-text-field>
+										/>
 									</v-col>
 									<v-col cols="12">
 										<v-text-field
@@ -87,42 +87,42 @@
 											:rules="emailRules"
 											label="E-mail"
 											required
-										></v-text-field>
+										/>
 									</v-col>
 									<v-col cols="12">
 										<v-text-field
 											v-model="password"
-											:append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
+											:append-icon="isPassVisible ? 'mdi-eye' : 'mdi-eye-off'"
 											:rules="[rules.required, rules.min]"
-											:type="show1 ? 'text' : 'password'"
+											:type="isPassVisible ? 'text' : 'password'"
 											name="input-10-1"
 											label="Password"
 											hint="At least 8 characters"
 											counter
-											@click:append="show1 = !show1"
-										></v-text-field>
+											@click:append="changeShowIcon"
+										/>
 									</v-col>
 									<v-col cols="12">
 										<v-text-field
 											block
 											v-model="verify"
-											:append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
+											:append-icon="isPassVisible ? 'mdi-eye' : 'mdi-eye-off'"
 											:rules="[rules.required, passwordMatch]"
-											:type="show1 ? 'text' : 'password'"
+											:type="isPassVisible ? 'text' : 'password'"
 											name="input-10-1"
 											label="Confirm Password"
 											counter
-											@click:append="show1 = !show1"
-										></v-text-field>
+											@click:append="changeShowIcon"
+										/>
 									</v-col>
-									<v-spacer></v-spacer>
+									<v-spacer />
 									<v-col class="d-flex ml-auto" cols="12" sm="3" xsm="12">
 										<v-btn
 											x-large
 											block
 											:disabled="!valid"
 											color="success"
-											@click="validate"
+											@click="validateRegister"
 											>Register</v-btn
 										>
 									</v-col>
@@ -148,31 +148,36 @@ export default {
 	},
 	methods: {
 		...mapActions("user", ["register", "login"]),
-		validate() {
+		validateRegister() {
+			if (this.$refs.registerForm.validate()) {
+				// submit form to server/API here...
+				this.register({
+					name: this.firstName + " " + this.lastName,
+					email: this.email,
+					password: this.password,
+				})
+				this.tab = 0
+			}
+		},
+		validateLogin() {
 			if (this.$refs.loginForm.validate()) {
 				// submit form to server/API here...
-				if (this.tab === 1) {
-					this.register({
-						name: this.firstName + " " + this.lastName,
-						email: this.email,
-						password: this.password,
-					})
-					this.tab = 0
-				}
-				if (this.tab === 0) {
-					this.login({ username: this.email, password: this.password })
-				}
+
+				this.login({ username: this.email, password: this.password })
 			}
 		},
 		reset() {
-			this.$refs.form.reset()
+			this.$refs.form?.reset()
 		},
 		resetValidation() {
-			this.$refs.form.resetValidation()
+			this.$refs.form?.resetValidation()
+		},
+		changeShowIcon() {
+			this.isPassVisible = !this.isPassVisible
 		},
 	},
 	data: () => ({
-		dialog: true,
+		isDialog: true,
 		tab: 0,
 		tabs: [
 			{ name: "Login", icon: "mdi-account" },
@@ -196,7 +201,7 @@ export default {
 			(v) => /.+@.+\..+/.test(v) || "E-mail must be valid",
 		],
 
-		show1: false,
+		isPassVisible: false,
 		rules: {
 			required: (value) => !!value || "Required.",
 			min: (v) => (v && v.length >= 8) || "Min 8 characters",
