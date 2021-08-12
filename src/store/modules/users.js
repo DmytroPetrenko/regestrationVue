@@ -1,7 +1,10 @@
 import { userService } from "../../services"
+import axios from "axios"
 
 const state = {
 	all: {},
+	usersList: [],
+	usersPerPage: [],
 }
 
 const actions = {
@@ -12,6 +15,24 @@ const actions = {
 			(users) => commit("getAllSuccess", users),
 			(error) => commit("getAllFailure", error)
 		)
+	},
+	getUsersList({ commit }) {
+		axios
+			.get("https://randomuser.me/api/?results=10")
+			.then((response) => {
+				commit("getUsersList", response.data.results)
+			})
+			.catch((err) => console.log(err))
+	},
+	getUsersPerPage({ commit }, data) {
+		axios
+			.get(
+				`https://randomuser.me/api/?page=${data.page}&results=${data.perPage}`
+			)
+			.then((response) => {
+				commit("getUsersPerPage", response.data.results)
+			})
+			.catch((err) => console.log(err))
 	},
 }
 
@@ -24,6 +45,12 @@ const mutations = {
 	},
 	getAllFailure(state, error) {
 		state.all = { error }
+	},
+	getUsersList(state, usersList) {
+		state.usersList = usersList
+	},
+	getUsersPerPage(state, usersPerPage) {
+		state.usersPerPage = usersPerPage
 	},
 }
 
