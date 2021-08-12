@@ -43,7 +43,7 @@ export default {
 		page: {
 			get() {
 				return this.$route.params.page
-					? parseInt(this.$route.params.page)
+					? Number(this.$route.params.page)
 					: this.defaultPage
 			},
 			set(newValue) {
@@ -54,8 +54,7 @@ export default {
 	methods: {
 		...mapActions("users", ["getUsersPerPage", "getUsersList"]),
 		changePage() {
-			if (this.$route.params.page != this.defaultPage) {
-				console.log(this.$route.params.page, this.defaultPage)
+			if (Number(this.$route.params.page) !== this.defaultPage) {
 				router.push({ name: "Users", params: { page: this.defaultPage } })
 			}
 		},
