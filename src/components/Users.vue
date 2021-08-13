@@ -18,6 +18,7 @@
 <script>
 import { mapState, mapActions } from "vuex"
 import router from "@/router/index.js"
+import routeNames from "@/router/routeNames"
 
 export default {
 	data() {
@@ -35,7 +36,7 @@ export default {
 			return Math.ceil(this.usersList.length / this.perPage)
 		},
 		startPaginationIndex() {
-			return 0 + this.perPage * (this.page - 1)
+			return this.perPage * (this.page - 1)
 		},
 		endPaginationIndex() {
 			return this.startPaginationIndex + this.perPage
@@ -55,7 +56,10 @@ export default {
 		...mapActions("users", ["getUsersPerPage", "getUsersList"]),
 		changePage() {
 			if (Number(this.$route.params.page) !== this.defaultPage) {
-				router.push({ name: "Users", params: { page: this.defaultPage } })
+				router.push({
+					name: routeNames.users,
+					params: { page: this.defaultPage },
+				})
 			}
 		},
 	},

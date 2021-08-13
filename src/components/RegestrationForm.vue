@@ -10,7 +10,7 @@
 				grow
 			>
 				<v-tabs-slider color="purple darken-4" />
-				<v-tab v-for="i in tabs" :key="i.name">
+				<v-tab v-for="i in tabs" :key="i.id">
 					<v-icon large>{{ i.icon }}</v-icon>
 					<div class="caption py-1">{{ i.name }}</div>
 				</v-tab>
@@ -138,6 +138,8 @@
 
 <script>
 import { mapActions } from "vuex"
+import { v4 as uuidv4 } from "uuid"
+
 export default {
 	name: "RegestrationForm",
 
@@ -180,8 +182,8 @@ export default {
 		isDialog: true,
 		tab: 0,
 		tabs: [
-			{ name: "Login", icon: "mdi-account" },
-			{ name: "Register", icon: "mdi-account-outline" },
+			{ id: uuidv4(), name: "Login", icon: "mdi-account" },
+			{ id: uuidv4(), name: "Register", icon: "mdi-account-outline" },
 		],
 		valid: true,
 
